@@ -12,6 +12,7 @@
     $suffixIcon = $getSuffixIcon();
     $suffixLabel = $getSuffixLabel();
     $statePath = $getStatePath();
+    $wireLoadingClass = $isLive ? 'opacity-50 pointer-events-none' : '';
 @endphp
 
 <x-dynamic-component
@@ -32,11 +33,19 @@
         :suffix-icon="$suffixIcon"
         :suffix-icon-color="$getSuffixIconColor()"
         :valid="! $errors->has($statePath)"
+        :wire:loading.delay.class="$wireLoadingClass"
         :attributes="
             \Filament\Support\prepare_inherited_attributes($getExtraAttributeBag())
                 ->class(['fi-fo-select'])
         "
     >
+        @if ($isLive())
+            {{-- Loading spinner --}}
+            <x-filament::loading-indicator
+                class="h-5 w-5 absolute mt-2 ms-2"
+                wire:loading.delay
+            />
+        @endif
         @if ((! ($isSearchable() || $isMultiple()) && $isNative()))
             <x-filament::input.select
                 :autofocus="$isAutofocused()"
@@ -45,6 +54,7 @@
                 :inline-prefix="$isPrefixInline && (count($prefixActions) || $prefixIcon || filled($prefixLabel))"
                 :inline-suffix="$isSuffixInline && (count($suffixActions) || $suffixIcon || filled($suffixLabel))"
                 :required="$isRequired() && (! $isConcealed())"
+                :wire:loading.delay.class="'ps-8'"
                 :attributes="
                     $getExtraInputAttributeBag()
                         ->merge([
